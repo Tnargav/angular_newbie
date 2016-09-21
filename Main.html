@@ -1,0 +1,39 @@
+<html ng-app="firstApp">
+	<head>
+		<title>First App Test</title>
+		<script type="text/javascript" src="scripts/js/angular.js"></script>
+		<script type="text/javascript">
+			var app = angular.module("firstApp", []);
+			app.controller("firstController", function firstController($scope){
+				$scope.Albums = [{
+					Name		: 'Dark side of the moon', 
+					Artist	: 'Pink Floyd', 
+					Year		: 1973
+				},{
+					Name		: 'Argus',
+					Artist	: 'Wishbone Ash', 
+					Year		: 1972
+				},{
+					Name		: 'Ziggy Stardust', 
+					Artist	: 'David Bowie', 
+					Year		: 1972
+				},{
+					Name		: 'Badfinger', 
+					Artist	: 'Badfinger',
+					Year		: 1971
+				},{
+					Name		: 'Thriller', 
+					Artist	: 'Michael Jackson', 
+					Year		: 1982
+				}];
+			});
+		</script>
+	</head>
+	<body>
+		<div ng-controller="firstController">
+			<div ng-repeat="Album in Albums track by Album.Name">
+				{{Album.Name}} by {{Album.Artist}} in {{Album.Year}}
+			</div>
+		</div>
+	</body>
+</html>
