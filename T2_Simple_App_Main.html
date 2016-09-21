@@ -5,7 +5,6 @@
 		<script type="text/javascript">
 			// Applcation definition and config
 			var app = angular.module("firstApp", []);
-
 			// Controler with composite model in this case
 			app.controller("firstController", function firstController($scope){
 				$scope.Albums = [{
@@ -13,18 +12,22 @@
 					Artist	: 'Pink Floyd', 
 					Year		: 1973
 				},{
+
 					Name		: 'Argus',
 					Artist	: 'Wishbone Ash', 
 					Year		: 1972
 				},{
+
 					Name		: 'Ziggy Stardust', 
 					Artist	: 'David Bowie', 
 					Year		: 1972
 				},{
+
 					Name		: 'Badfinger', 
 					Artist	: 'Badfinger',
 					Year		: 1971
 				},{
+
 					Name		: 'Thriller', 
 					Artist	: 'Michael Jackson', 
 					Year		: 1982
@@ -36,17 +39,28 @@
 				- A stands for element
 				- AE stands for both attribute and element
 			*/
-			app.directive("adAlbum", function () {
-				restrict	: "A",
+			app.directive("abAlbum", function () {
 				return {
+					restrict		: "A",
+					transclude	: false,
+					scope			: {
+						name   : "@",
+						artist : "@",
+						year   : "@"
+					},
+					template: '<table>'+
+						'<tr><td><b>Album : </b></td><td>"{{name}}"</td></tr>'+
+						'<tr><td><b>Artist : </b></td><td>{{artist}}</td></tr>'+
+						'<tr><td><b>Year : </b></td><td>{{year}}</td></tr>'+
+						'</table><hr width=100%>'
 				}
 			});
 		</script>
 	</head>
 	<body>
 		<div ng-controller="firstController">
-			<div ng-repeat="Album in Albums track by Album.Name">
-				{{Album.Name}} by {{Album.Artist}} in {{Album.Year}}
+			<div ab-album ng-repeat="Album in Albums track by Album.Name"
+				name="{{Album.Name}}" artist="{{Album.Artist}}" year="{{Album.Year}}">
 			</div>
 		</div>
 	</body>
