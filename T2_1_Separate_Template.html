@@ -61,13 +61,22 @@
 		</script>
 	</head>
 	<body>
+		<!--
+			'search' is a Javascript object, even though we are treating it as a string before.
+			(ng-model="search" could have been written ng-model="search.$" - the dollar sign meaning that all fields to be filtered).
+		-->
 		<div ng-controller="firstController">
 			<table>
 				<tr>
 					<th>Album</th><th>Artist</th><th>Year</th>
 				</tr>
-				<tr ab-album ng-repeat="Album in Albums track by Album.Name"
+				<tr ab-album ng-repeat="Album in Albums | filter:search track by Album.Name"
 					name="{{Album.Name}}" artist="{{Album.Artist}}" year="{{Album.Year}}">
+				</tr>
+				<tr>
+					<td><input ng-model="search.Name"></input></td>
+					<td><input ng-model="search.Artist"></input></td>
+					<td><input ng-model="search.Year"></input></td>
 				</tr>
 			</table>
 		</div>
