@@ -1,0 +1,110 @@
+<html ng-app="firstApp">
+	<head>
+		<title>First App Test</title>
+		<script type="text/javascript" src="scripts/js/angular.js"></script>
+		<script type="text/javascript">
+			// Applcation definition and config
+			var app = angular.module("firstApp", []);
+			// Controler with composite model in this case
+			app.controller("firstController", function firstController($scope){
+				$scope.column	= "Name";
+				$scope.reverse	= false;
+
+				$scope.Albums	= [{
+					Name		: 'Dark side of the moon', 
+					Artist		: 'Pink Floyd', 
+					Year		: 1973
+				},{
+
+					Name		: 'Argus',
+					Artist		: 'Wishbone Ash', 
+					Year		: 1972
+				},{
+
+					Name		: 'Ziggy Stardust', 
+					Artist		: 'David Bowie', 
+					Year		: 1972
+				},{
+
+					Name		: 'Badfinger', 
+					Artist		: 'Badfinger',
+					Year		: 1971
+				},{
+
+					Name		: 'Thriller', 
+					Artist		: 'Michael Jackson', 
+					Year		: 1982
+				}];
+			});
+
+			/*
+				Directives
+				- A stands for element
+				- AE stands for both attribute and element
+				
+				"@" - access by value
+				"=" - access by reference
+			*/
+			app.directive("abAlbum", function () {
+				return {
+					restrict		: "A",
+					transclude	: false,
+					scope			: {
+						name	: "@",
+						artist	: "@",
+						year	: "@"
+					},
+					templateUrl: "Album.html"
+				}
+			});
+
+			app.directive('abAlbumEdit', function () {
+				return { 
+					restrict : 'A',
+					transclude : false,
+					scope: {
+						name   : "=",
+						artist : "=",
+						year   : "="
+					},
+					templateUrl : 'AlbumEdit.html'
+				}
+			});
+		</script>
+		<script type="text/ng-template" id="Album.html">
+			<!-- why tr elements are not duplicated in ng-repeat? -->
+			<tr>
+				<td>"{{name}}"</td>
+				<td>{{artist}}</td>
+				<td>{{year}}</td>
+			</tr>
+		</script>
+		<script type="text/ng-template" id="AlbumEdit.html">
+			<tr>
+				<td><input ng-model="name" /></td>
+				<td><input ng-model="artist" /></td>
+				<td><input ng-model="year" /></td>
+			</tr>
+		</script>
+	</head>
+	<body>
+		<!--
+			'search' is a Javascript object, even though we are treating it as a string before.
+			(ng-model="search" could have been written ng-model="search.$" - the dollar sign meaning that all fields to be filtered).
+		-->
+		<div ng-controller="firstController">
+			<table>
+				<!-- {{}} - value -->
+				<tr ab-album ng-repeat="Album in Albums track by Album.Name"
+					name="{{Album.Name}}" artist="{{Album.Artist}}" year="{{Album.Year}}">
+				</tr>
+			</table>
+			<table>
+				<!-- No curly brace - reference -->
+				<tr ab-album-edit ng-repeat="Album in Albums track by Album.Name"
+					name="Album.Name" artist="Album.Artist" year="Album.Year">
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>
