@@ -7,23 +7,8 @@
 			// Applcation definition and config
 			var app = angular.module("firstApp", ['ngRoute']);
 
-			app.config(function($routeProvider){
-				$routeProvider.
-					when('/View', {
-						templateUrl: 'RouteView1.html',
-						controller : 'firstController'
-					})
-						.when('/Edit', {
-						templateUrl: 'RouteEdit1.html',
-						controller : 'firstController'
-					})
-						.otherwise({
-						redirectTo: '/View'
-					});
-			});
-			// Controler with composite model in this case
-			app.controller("firstController", function firstController($scope){
-				$scope.Albums	= [{
+			app.service("albumsSvc", function(){
+				this.Albums = [{
 					Name		: 'Dark side of the moon', 
 					Artist		: 'Pink Floyd', 
 					Year		: 1973
@@ -47,7 +32,38 @@
 					Name		: 'Thriller', 
 					Artist		: 'Michael Jackson', 
 					Year		: 1982
-				}];
+				}]
+			});
+
+			app.config(function($routeProvider){
+				$routeProvider.
+					when('/View', {
+						templateUrl: 'templates/view/RouteView1.html',
+						controller : 'abViewCtrl'
+					})
+						.when('/Edit', {
+						templateUrl: 'templates/edit/RouteEdit1.html',
+						controller : 'abEditCtrl'
+					})
+						.otherwise({
+						redirectTo: '/View'
+					});
+			});
+
+			/*
+				Alternative:
+				app.controller('abViewCtrl',
+								['$scope', 'albumsSvc', function ABViewCtrl($scope, albumsSvc){
+							}]);
+				Syntax exists for code minification reasons - Angular needs to be able to refer to the Data Injection actual names after minification.
+				It appears that the syntax used is an abbreviated version of the formal syntax, and it may be that this more formal syntax must be used in certain circumstances.
+			*/
+			app.controller("abViewCtrl", function abViewCtrl($scope, albumsSvc){
+				$scope.Albums	= albumsSvc.Albums;
+			});
+
+			app.controller("abEditCtrl", function abEditCtrl($scope, albumsSvc){
+				$scope.Albums	= albumsSvc.Albums;
 			});
 
 			/*
