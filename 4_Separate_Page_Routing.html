@@ -1,0 +1,100 @@
+<html ng-app="firstApp">
+	<head>
+		<title>Separate Page Routing</title>
+		<script type="text/javascript" src="scripts/js/angular.js"></script>
+		<script type="text/javascript" src="scripts/js/angular-route.js"></script>
+		<script type="text/javascript">
+			// Applcation definition and config
+			var app = angular.module("firstApp", ['ngRoute']);
+
+			app.config(function($routeProvider){
+				$routeProvider.
+					when('/View', {
+						templateUrl: 'RouteView1.html',
+						controller : 'firstController'
+					})
+						.when('/Edit', {
+						templateUrl: 'RouteEdit1.html',
+						controller : 'firstController'
+					})
+						.otherwise({
+						redirectTo: '/View'
+					});
+			});
+			// Controler with composite model in this case
+			app.controller("firstController", function firstController($scope){
+				$scope.Albums	= [{
+					Name		: 'Dark side of the moon', 
+					Artist		: 'Pink Floyd', 
+					Year		: 1973
+				},{
+
+					Name		: 'Argus',
+					Artist		: 'Wishbone Ash', 
+					Year		: 1972
+				},{
+
+					Name		: 'Ziggy Stardust', 
+					Artist		: 'David Bowie', 
+					Year		: 1972
+				},{
+
+					Name		: 'Badfinger', 
+					Artist		: 'Badfinger',
+					Year		: 1971
+				},{
+
+					Name		: 'Thriller', 
+					Artist		: 'Michael Jackson', 
+					Year		: 1982
+				}];
+			});
+
+			/*
+				Directives
+				- A stands for element
+				- AE stands for both attribute and element
+				
+				"@" - access by value
+				"=" - access by reference
+			*/
+			app.directive("abAlbum", function () {
+				return {
+					restrict		: "A",
+					transclude	: false,
+					scope			: {
+						name	: "@",
+						artist	: "@",
+						year	: "@"
+					},
+					templateUrl: "Album.html"
+				}
+			});
+
+			app.directive('abAlbumEdit', function () {
+				return { 
+					restrict : 'A',
+					transclude : false,
+					scope: {
+						name   : "=",
+						artist : "=",
+						year   : "="
+					},
+					templateUrl : 'AlbumEdit.html'
+				}
+			});
+		</script>
+		</script>
+		<script type="text/ng-template" id="Album.html">
+			<tr><td>"{{name}}"</td><td>{{artist}}</td><td>{{year}}</td></tr>
+		</script>
+		<script type="text/ng-template" id="AlbumEdit.html">
+			<tr><td><input ng-model="name" /></td>
+			<td><input ng-model="artist" /></td>
+			<td><input ng-model="year" /></td></tr>
+		</script>
+	</head>
+	<body>
+		<div ng-view></div>
+	</body>
+</html>
