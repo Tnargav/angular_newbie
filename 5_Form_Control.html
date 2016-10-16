@@ -1,0 +1,188 @@
+<html ng-app="firstApp">
+	<head>
+		<title>From Control</title>
+		<style>
+			input.ng-invalid {
+				border: 1px solid red;
+				background: #fff0f0;
+			}
+
+			input.ng-valid {
+				border: 1px solid green;
+				background: #f0fff0;
+			}
+		</style>
+		<script type="text/javascript" src="scripts/js/angular.js"></script>
+		<script type="text/javascript" src="scripts/js/angular-route.js"></script>
+		<script type="text/javascript">
+			// Applcation definition and config
+			var app = angular.module("firstApp", ['ngRoute']);
+
+			app.service("albumsSvc", function(){
+				this.Albums = [{
+					Name		: 'Dark side of the moon',
+					Artist		: 'Pink Floyd',
+					Year		: 1973
+				},{
+
+					Name		: 'Argus',
+					Artist		: 'Wishbone Ash',
+					Year		: 1972
+				},{
+
+					Name		: 'Ziggy Stardust',
+					Artist		: 'David Bowie',
+					Year		: 1972
+				},{
+
+					Name		: 'Badfinger',
+					Artist		: 'Badfinger',
+					Year		: 1971
+				},{
+
+					Name		: 'Thriller',
+					Artist		: 'Michael Jackson',
+					Year		: 1982
+				}]
+
+				this.selectedName;
+				this.selectedArtist;
+				this.selectedYear;
+
+				this.selectedIndex;
+
+				// View sets the selected Album index - this copies the selected Album
+				// data values into separate data fields that then appear in the Edit page.
+				this.setAlbumIndex = function(Index) {
+					this.selectedIndex  = Index;
+					this.selectedName   = this.Albums[Index].Name;
+					this.selectedArtist = this.Albums[Index].Artist;
+					this.selectedYear   = this.Albums[Index].Year;
+				}
+
+				// Save Album changes
+				this.save = function() {
+					// Save the edited values to the model
+					this.Albums[this.selectedIndex].Name   = this.selectedName;
+					this.Albums[this.selectedIndex].Artist = this.selectedArtist;
+					this.Albums[this.selectedIndex].Year   = this.selectedYear;
+				}
+			});
+
+			app.config(function($routeProvider){
+				$routeProvider.
+					when('/View', {
+						templateUrl: 'templates/view/RouteView3.html',
+						controller : 'abViewCtrl'
+					})
+						.when('/Edit', {
+						templateUrl: 'templates/edit/RouteEdit3.html',
+						controller : 'abEditCtrl'
+					})
+						.otherwise({
+						redirectTo: '/View'
+					});
+			});
+
+			/*
+				Alternative:
+				app.controller('abViewCtrl',
+								['$scope', 'albumsSvc', function ABViewCtrl($scope, albumsSvc){
+							}]);
+				Syntax exists for code minification reasons - Angular needs to be able to refer to the Data Injection actual names after minification.
+				It appears that the syntax used is an abbreviated version of the formal syntax, and it may be that this more formal syntax must be used in certain circumstances.
+			*/
+			app.controller("abViewCtrl", function abViewCtrl($scope, albumsSvc, $window){
+				// Get addressability for the Albums data via a data service
+				$scope.Albums    = albumsSvc.Albums;
+				$scope.albumsSvc = albumsSvc;
+
+				// Set the album index and navigate to the Edit page
+				$scope.setAlbumIndex = function(Index) {
+					// Tell the service to store the index and prepare edit data
+					$scope.albumsSvc.setAlbumIndex(Index);
+
+					// Navigate to the Edit page using the Angular version of window
+					$window.location.href = "#/Edit";
+				}
+			});
+
+			app.controller("abEditCtrl", function abEditCtrl($scope, albumsSvc, $window){
+				$scope.changed = false;
+
+				// Save the album changes and return to the View page
+				$scope.save = function() {
+					// Tell the service to save the album changes
+					$scope.albumsSvc.save();
+
+					// And return to the albums view page
+					$window.location.href = "#/View";
+				}
+
+				// Cancel album changes
+				$scope.cancel = function() {
+				if (confirm('Return to view without saving?'))
+					$window.location.href = "#/View";
+				}
+			});
+
+			/*
+				Directives
+				- A stands for element
+				- AE stands for both attribute and element
+
+				"@" - access by value
+				"=" - access by reference
+			*/
+			app.directive("abAlbum", function () {
+				return {
+					restrict		: "A",
+					transclude	: false,
+					scope			: {
+						name		: "@",
+						artist	: "@",
+						year		: "@",
+						index		: "@"
+					},
+					templateUrl: "Album.html"
+				}
+			});
+
+			app.directive('abAlbumEdit', function (albumsSvc) {
+				return {
+					link: function (scope) {
+						scope.albumsSvc = albumsSvc;
+					},
+
+					// We limit this directive to use as an attribute only.
+					// Note that 'A' is the default, so not strictly needed here.
+					restrict : 'A',
+
+					// We do not want to use the contents of the element
+					transclude : false,
+
+					// We format the album fields
+					templateUrl : 'AlbumEdit.html'
+				}
+			});
+		</script>
+		<script type="text/ng-template" id="Album.html">
+			<tr>
+			<td>"{{name}}"</td><td>{{artist}}</td><td>{{year}}</td>
+				<button ng-click="$parent.setAlbumIndex(index)">Edit</button>
+			</tr>
+		</script>
+		<script type="text/ng-template" id="AlbumEdit.html">
+			<form name="AlbumForm">
+				<input ng-model="albumsSvc.selectedName" required ng-minlength="3" ng-maxlength="25" ng-change="changed=true" />
+				<input ng-model="albumsSvc.selectedArtist" required ng-minlength="3" ng-maxlength="25" ng-change="changed=true"/>
+				<input ng-model="albumsSvc.selectedYear" ng-change="changed=true" type="number" required min="1950" max="2200" ng-pattern="/^[0-9]{4,4}$/" />
+				<button ng-click="save()" type="submit" ng-show="changed" ng-disabled="AlbumForm.$invalid">Save</button>
+				<button ng-click="cancel()">Cancel</button>
+			</form>
+		</script>
+	</head>
+	<body>
+		<div ng-view></div>
+	</body>
+</html>
