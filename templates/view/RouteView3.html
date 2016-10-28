@@ -1,6 +1,7 @@
 <table>
 	<tr ab-album ng-repeat="Album in Albums track by Album.Name"
-		name="{{Album.Name}}" artist="{{Album.Artist}}" year="{{Album.Year}}"
-		index="{{$index}}">
+		id="{{Album.Id}}"
+		name="{{Album.Name}}" artist="{{Album.Artist}}" year="{{Album.Year}}">
 	</tr>
 </table>
+<button ng-click="addAlbum()">Add a new album</button>

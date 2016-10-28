@@ -61,7 +61,7 @@
 					}
 					return index;
 				}
-				
+
 				// View sets the selected Album index - this copies the selected Album
 				// data values into separate data fields that then appear in the Edit page.
 				this.setAlbumId = function(Id) {
@@ -74,25 +74,61 @@
 					this.selectedYear	= this.Albums[index].Year;
 				}
 
+				this.clearAlbum = function () {
+					this.selectedId		= -1;
+					this.selectedName	= "";
+					this.selectedArtist	= "";
+					this.selectedYear	= 0;
+				}
+
+				this.deleteAlbum = function(Id){
+					this.selectedId		= Id;
+
+					var index = this.getIndex();
+
+					this.Albums.splice(index, 1);
+				}
+
 				// Save Album changes
 				this.save = function() {
-					var index = this.getIndex();
-					// Save the edited values to the model
-					this.Albums[index].Name		= this.selectedName;
-					this.Albums[index].Artist	= this.selectedArtist;
-					this.Albums[index].Year		= this.selectedYear;
+					if (this.selectedId == -1) {
+						var maxId = -1;
+
+						for (var I=0; I<this.Albums.length; I++){
+							if (this.Albums[I].Id > maxId)
+							maxId = this.Albums[I].Id;
+						}
+
+						maxId++;
+
+						// Add the new Album element to the Albums array
+						this.Albums.push({Id : maxId, Name   : this.selectedName,
+						Artist : this.selectedArtist,
+						Year   : this.selectedYear});
+					} else {
+						var index = this.getIndex();
+
+						// Save the edited values to the model
+						this.Albums[index].Name   = this.selectedName;
+						this.Albums[index].Artist = this.selectedArtist;
+						this.Albums[index].Year   = this.selectedYear;
+					}
 				}
 			});
 
 			app.config(function($routeProvider){
 				$routeProvider.
 					when('/View', {
-						templateUrl: 'templates/view/RouteView3.html',
-						controller : 'abViewCtrl'
+						templateUrl	: 'templates/view/RouteView3.html',
+						controller	: 'abViewCtrl'
 					})
 					.when('/Edit', {
-						templateUrl: 'templates/edit/RouteEdit3.html',
-						controller : 'abEditCtrl'
+						templateUrl	: 'templates/edit/RouteEdit3.html',
+						controller	: 'abEditCtrl'
+					})
+					.when('/Add', {
+						templateUrl	: 'templates/add/RouteAdd7.html',
+						controller	: 'abEditCtrl'
 					})
 					.otherwise({
 						redirectTo: '/View'
@@ -119,6 +155,22 @@
 
 					// Navigate to the Edit page using the Angular version of window
 					$window.location.href = "#/Edit";
+				}
+
+				// Add a new album
+				$scope.addAlbum = function() {
+					// Tell the service to reset the selected album values
+					$scope.albumsSvc.clearAlbum();
+
+					$window.location.href = "#/Add";
+				}
+
+				// Delete an album
+				$scope.deleteAlbum = function(Id, Name) {
+					if (confirm('Are you sure you want to delete "'+Name+'"?')){
+					// Tell the service to delete the specified album from the data model
+						$scope.albumsSvc.deleteAlbum(Id);
+					}
 				}
 			});
 
@@ -175,7 +227,10 @@
 
 					// We do not want to use the contents of the element
 					transclude : false,
-
+					scope	: {
+						label: "@"
+					},
+					controller	: 'abEditCtrl',
 					// We format the album fields
 					templateUrl : 'AlbumEdit.html'
 				}
@@ -185,6 +240,7 @@
 			<tr>
 			<td>"{{name}}"</td><td>{{artist}}</td><td>{{year}}</td>
 				<button ng-click="$parent.setAlbumId(id)">Edit</button>
+				<button ng-click="$parent.deleteAlbum(id, name)">Delete</button>
 			</tr>
 		</script>
 		<script type="text/ng-template" Id="AlbumEdit.html">
@@ -192,7 +248,7 @@
 				<input ng-model="albumsSvc.selectedName" required ng-minlength="3" ng-maxlength="25" ng-change="changed=true" />
 				<input ng-model="albumsSvc.selectedArtist" required ng-minlength="3" ng-maxlength="25" ng-change="changed=true"/>
 				<input ng-model="albumsSvc.selectedYear" ng-change="changed=true" type="number" required min="1950" max="2200" ng-pattern="/^[0-9]{4,4}$/" />
-				<button ng-click="save()" type="submit" ng-show="changed" ng-disabled="AlbumForm.$invalId">Save</button>
+				<button ng-click="save()" type="submit" ng-show="changed" ng-disabled="AlbumForm.$invalId">{{label}}</button>
 				<button ng-click="cancel()">Cancel</button>
 			</form>
 		</script>
